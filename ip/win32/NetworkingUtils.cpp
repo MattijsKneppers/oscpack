@@ -28,6 +28,7 @@
 	WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #include "ip/NetworkingUtils.h"
+#if defined( __WIN32__ ) || defined( _WIN32 )
 
 #include <winsock2.h>   // this must come first to prevent errors with MSVC7
 #include <windows.h>
@@ -86,3 +87,4 @@ unsigned long GetHostByName( const char *name )
 
     return result;
 }
+#endif

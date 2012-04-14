@@ -28,6 +28,7 @@
 	WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #include "ip/UdpSocket.h"
+#if !defined( __WIN32__ ) && !defined( _WIN32 )
 
 #include <vector>
 #include <algorithm>
@@ -551,4 +552,4 @@ void SocketReceiveMultiplexer::AsynchronousBreak()
 {
 	impl_->AsynchronousBreak();
 }
-
+#endif

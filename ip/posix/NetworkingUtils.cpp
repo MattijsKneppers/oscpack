@@ -28,6 +28,7 @@
 	WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #include "ip/NetworkingUtils.h"
+#if !defined( __WIN32__ ) && !defined( _WIN32 )
 
 #include <netdb.h>
 #include <sys/socket.h>
@@ -55,3 +56,4 @@ unsigned long GetHostByName( const char *name )
 
     return result;
 }
+#endif
