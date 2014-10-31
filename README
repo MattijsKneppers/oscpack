@@ -34,7 +34,7 @@ tests/OscUnitTests -- unit test program for the OSC modules
 tests/OscSendTests -- examples of how to send messages
 tests/OscReceiveTest -- example of how to receive the messages sent by OSCSendTests
 examples/OscDump -- a program that prints received OSC packets
-tests/OscReceiveMulticastTest -- example of how to receive the messages sent to an 
+tests/OscReceiveMulticastTest -- example of how to listen for messages sent to an 
 	address in the multicast range (224.0.0.0 to 239.255.255.255)
 
 
@@ -60,7 +60,7 @@ the unit tests.
 --
 
 
-If you fix anything or write a set of TCP send/recieve classes 
+If you fix anything or write a set of TCP send/receive classes 
 please consider sending me a patch. Thanks :)
 
 For more information about Open Sound Control, see:

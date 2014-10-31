@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <assert.h>
+#include <stdio.h>
 
 #ifndef WINCE
 #include <signal.h>
@@ -47,6 +48,30 @@
 #include "ip/PacketListener.h"
 #include "ip/TimerListener.h"
 
+#ifndef IP_MULTICAST_IF 
+/* 
+ * The following constants are taken from include/netinet/in.h
+ * in Berkeley Software Distribution version 4.4. Note that these 
+ * values *DIFFER* from the original values defined by Steve Deering 
+ * as described in "IP Multicast Extensions for 4.3BSD UNIX related 
+ * systems (MULTICAST 1.2 Release)". It describes the extensions 
+ * to BSD, SunOS and Ultrix to support multicasting, as specified
+ * by RFC-1112. 
+ */ 
+#define IP_MULTICAST_IF 9 /* set/get IP multicast interface */ 
+#define IP_MULTICAST_TTL 10 /* set/get IP multicast TTL */
+#define IP_MULTICAST_LOOP 11 /* set/get IP multicast loopback */ 
+#define IP_ADD_MEMBERSHIP 12 /* add (set) IP group membership */ 
+#define IP_DROP_MEMBERSHIP 13 /* drop (set) IP group membership */ 
+#define IP_DEFAULT_MULTICAST_TTL 1 
+#define IP_DEFAULT_MULTICAST_LOOP 1 
+#define IP_MAX_MEMBERSHIPS 20 
+/* The structure used to add and drop multicast addresses */ 
+typedef struct ip_mreq { 
+  struct in_addr imr_multiaddr; /* multicast group to join */
+  struct in_addr imr_interface; /* interface to join on */
+}IP_MREQ; 
+#endif 
 
 typedef int socklen_t;
 
@@ -193,10 +218,36 @@ public:
 	{
 		struct sockaddr_in bindSockAddr;
 		SockaddrFromIpEndpointName( bindSockAddr, localEndpoint );
-
-        if (bind(socket_, (struct sockaddr *)&bindSockAddr, sizeof(bindSockAddr)) < 0) {
-            throw std::runtime_error("unable to bind udp socket\n");
+		
+		if (localEndpoint.IsMulticastAddress()) {
+			struct ip_mreq group;
+            group.imr_interface.s_addr = htonl(INADDR_ANY);
+            group.imr_multiaddr.s_addr = bindSockAddr.sin_addr.s_addr;			
+			
+			// we have set the multicast group address, on Windows we
+			// now have to set the address to ANY before binding the socket.
+			bindSockAddr.sin_addr.s_addr = INADDR_ANY;
+		
+			if (bind(socket_, (struct sockaddr *)&bindSockAddr, sizeof(bindSockAddr)) < 0) {
+				char errorString[256];
+				sprintf(errorString, "Error %i binding to udp socket\n", WSAGetLastError());
+				throw std::runtime_error(errorString);
+				closesocket(socket_);
+			}
+			
+			if (setsockopt (socket_, IPPROTO_IP, IP_ADD_MEMBERSHIP,
+				  (char *)&group, sizeof (struct ip_mreq)) < 0) { 
+				char errorString[256];
+				sprintf(errorString, "Error %i adding multicast group\n", WSAGetLastError());
+				throw std::runtime_error(errorString);     
+				closesocket(socket_);
+			}
         }
+		else {
+			if (bind(socket_, (struct sockaddr *)&bindSockAddr, sizeof(bindSockAddr)) < 0) {
+				throw std::runtime_error("unable to bind udp socket\n");
+			}
+		}
 
 		isBound_ = true;
 	}

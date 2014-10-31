@@ -58,8 +58,6 @@
 typedef ssize_t socklen_t;
 #endif
 
-struct ip_mreq        group;
-
 static void SockaddrFromIpEndpointName( struct sockaddr_in& sockAddr, const IpEndpointName& endpoint )
 {
     memset( (char *)&sockAddr, 0, sizeof(sockAddr ) );
@@ -203,6 +201,8 @@ public:
 		SockaddrFromIpEndpointName( bindSockAddr, localEndpoint );
 
         if (localEndpoint.IsMulticastAddress()) {
+			struct ip_mreq group;
+		
             group.imr_interface.s_addr = htonl(INADDR_ANY);
             group.imr_multiaddr.s_addr = bindSockAddr.sin_addr.s_addr;
             if (setsockopt(socket_, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group)) < 0) {

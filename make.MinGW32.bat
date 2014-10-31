@@ -16,4 +16,6 @@ g++ tests\OscSendTests.cpp osc\OscTypes.cpp osc\OscOutboundPacketStream.cpp ip\w
 
 g++ tests\OscReceiveTest.cpp osc\OscTypes.cpp osc\OscReceivedElements.cpp ip\win32\NetworkingUtils.cpp ip\win32\UdpSocket.cpp -Wall -I. -lws2_32 -lwinmm -o bin\OscReceiveTest.exe
 
+g++ tests\OscReceiveMulticastTest.cpp osc\OscTypes.cpp osc\OscReceivedElements.cpp ip\win32\NetworkingUtils.cpp ip\win32\UdpSocket.cpp -Wall -I. -lws2_32 -lwinmm -o bin\OscReceiveMulticastTest.exe
+
 .\bin\OscUnitTests.exe
