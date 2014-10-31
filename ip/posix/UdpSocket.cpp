@@ -58,6 +58,7 @@
 typedef ssize_t socklen_t;
 #endif
 
+struct ip_mreq        group;
 
 static void SockaddrFromIpEndpointName( struct sockaddr_in& sockAddr, const IpEndpointName& endpoint )
 {
@@ -201,6 +202,15 @@ public:
 		struct sockaddr_in bindSockAddr;
 		SockaddrFromIpEndpointName( bindSockAddr, localEndpoint );
 
+        if (localEndpoint.IsMulticastAddress()) {
+            group.imr_interface.s_addr = htonl(INADDR_ANY);
+            group.imr_multiaddr.s_addr = bindSockAddr.sin_addr.s_addr;
+            if (setsockopt(socket_, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group)) < 0) {
+                close(socket_);
+                throw std::runtime_error("error adding multicast group\n");
+            }
+        }
+        
         if (bind(socket_, (struct sockaddr *)&bindSockAddr, sizeof(bindSockAddr)) < 0) {
             throw std::runtime_error("unable to bind udp socket\n");
         }

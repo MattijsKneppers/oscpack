@@ -17,6 +17,7 @@ INSTALL = /usr/bin/install -c
 UNITTESTS=OscUnitTests
 SEND=OscSendTests
 RECEIVE=OscReceiveTest
+RECEIVEMULTICAST=OscReceiveMulticastTest
 DUMP=OscDump
 
 INCLUDEDIR = oscpack
@@ -31,6 +32,9 @@ SENDOBJECTS = $(SENDSOURCES:.cpp=.o)
 RECEIVESOURCES = ./tests/OscReceiveTest.cpp ./osc/OscTypes.cpp ./osc/OscReceivedElements.cpp ./osc/OscPrintReceivedElements.cpp ./ip/posix/NetworkingUtils.cpp ./ip/posix/UdpSocket.cpp
 RECEIVEOBJECTS = $(RECEIVESOURCES:.cpp=.o)
 
+RECEIVEMULTICASTSOURCES = ./tests/OscReceiveMulticastTest.cpp ./osc/OscTypes.cpp ./osc/OscReceivedElements.cpp ./osc/OscPrintReceivedElements.cpp ./ip/posix/NetworkingUtils.cpp ./ip/posix/UdpSocket.cpp
+RECEIVEMULTICASTOBJECTS = $(RECEIVEMULTICASTSOURCES:.cpp=.o)
+
 DUMPSOURCES = ./examples/OscDump.cpp ./osc/OscTypes.cpp ./osc/OscReceivedElements.cpp ./osc/OscPrintReceivedElements.cpp ./ip/posix/NetworkingUtils.cpp ./ip/posix/UdpSocket.cpp
 DUMPOBJECTS = $(DUMPSOURCES:.cpp=.o)
 
@@ -43,7 +47,7 @@ LIBSOURCES = ./ip/IpEndpointName.cpp \
 	./osc/OscOutboundPacketStream.cpp ./osc/OscPrintReceivedElements.cpp ./osc/OscReceivedElements.cpp ./osc/OscTypes.cpp
 LIBOBJECTS = $(LIBSOURCES:.cpp=.o)
 
-all:	unittests send receive dump
+all:	unittests send receive receivemulticast dump
 
 unittests : $(UNITTESTOBJECTS)
 	@if [ ! -d bin ] ; then mkdir bin ; fi
@@ -54,12 +58,15 @@ send : $(SENDOBJECTS)
 receive : $(RECEIVEOBJECTS)
 	@if [ ! -d bin ] ; then mkdir bin ; fi
 	$(CXX) -o bin/$(RECEIVE) $+ $(LIBS) 
+receivemulticast : $(RECEIVEMULTICASTOBJECTS)
+	@if [ ! -d bin ] ; then mkdir bin ; fi
+	$(CXX) -o bin/$(RECEIVEMULTICAST) $+ $(LIBS) 
 dump : $(DUMPOBJECTS)
 	@if [ ! -d bin ] ; then mkdir bin ; fi
 	$(CXX) -o bin/$(DUMP) $+ $(LIBS) 
 
 clean:
-	rm -rf bin $(UNITTESTOBJECTS) $(SENDOBJECTS) $(RECEIVEOBJECTS) $(DUMPOBJECTS) $(LIBOBJECTS) $(LIBFILENAME) include lib oscpack &> /dev/null
+	rm -rf bin $(UNITTESTOBJECTS) $(SENDOBJECTS) $(RECEIVEOBJECTS) $(RECEIVEMULTICASTOBJECTS) $(DUMPOBJECTS) $(LIBOBJECTS) $(LIBFILENAME) include lib oscpack &> /dev/null
 
 $(LIBFILENAME): $(LIBOBJECTS)
 	@#GNU/Linux case
